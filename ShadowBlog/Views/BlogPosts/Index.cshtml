@@ -1,0 +1,78 @@
+﻿@using ShadowBlog.Services.Interfaces
+@model IEnumerable<BlogPost>
+@inject IImageService _imageService
+@{
+    ViewData["Title"] = "Index";
+}
+
+<!-- breadcrumb start-->
+<section class="breadcrumb breadcrumb_bg align-items-center">
+    <div class="container">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-sm-6">
+                <div class="breadcrumb_tittle text-left">
+                    <h2>Blog Post Index</h2>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="breadcrumb_content text-right">
+                    <p>Home<span>/</span>Category Page</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- breadcrumb start-->
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Slug)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Abstract)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Content)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Blog)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Abstract)
+                </td>
+                <td>
+
+                    @Html.Raw(item.Content)
+                </td>
+                <td>
+                    <img class="img-fluid" width="50" src="@_imageService.DecodeImage(item.ImageData, item.ImageType)" />
+                </td>
+                <td>
+
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Edit" asp-route-slug="@item.Slug">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

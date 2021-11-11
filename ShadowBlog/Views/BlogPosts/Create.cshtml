@@ -1,0 +1,151 @@
+﻿@using ShadowBlog.Services.Interfaces
+@using ShadowBlog.Enums
+@model ShadowBlog.Models.BlogPost
+
+@inject IImageService _imageService
+@{
+    ViewData["Title"] = "Create";
+}
+
+<!-- breadcrumb start-->
+<section class="breadcrumb breadcrumb_bg align-items-center">
+    <div class="container">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-sm-6">
+                <div class="breadcrumb_tittle text-left">
+                    <h2>Create a Blog Post</h2>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="breadcrumb_content text-right">
+                    <p>Home<span>/</span>Category Page</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- breadcrumb start-->
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @*Right here is where I need to decide whether to show the SelectList to the User
+                or embed the FK into the form as a hidden...*@
+            @if (Model?.BlogId > 0)
+            {
+                <input type="hidden" asp-for="BlogId">
+            }
+            else
+            {
+                <div class="form-group">
+                    <label asp-for="BlogId" class="control-label"></label>
+                    <select asp-for="BlogId" class="form-control" asp-items="ViewBag.BlogId"></select>
+                </div>
+            }
+
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Abstract" class="control-label"></label>
+                <textarea asp-for="Abstract" class="form-control" rows="7"></textarea>
+                <span asp-validation-for="Abstract" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Content" class="control-label"></label>
+                <textarea asp-for="Content" class="form-control"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ReadyStatus" class="control-label"></label>
+                <select asp-for="ReadyStatus" asp-items="@Html.GetEnumSelectList<ReadyState>()" class="form-control"></select>
+                <span asp-validation-for="ReadyStatus" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label asp-for="Image" class="control-label"></label>
+                        <input type="file" asp-for="Image" accept=".png,.jpg,.jpeg" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <img id="imgPreview" class="img-fluid" />
+                    </div>
+                </div>
+            </div>
+
+
+            @*Add a section for tags*@
+
+            <div class="form-group pb-5">
+                <div class="row">
+                    <div class="col-6">
+                        <label class="contol-label">Manage Tags</label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row mb-2">
+                            <div class="col">
+                                <input id="tagEntry" type="text" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn btn-dark btn-sm w-100" name="Add" onclick="AddTag()">Add</button>
+                            </div>
+                            <div class="col"></div>
+                            <button type="button" class="btn btn-dark btn-sm w-100" name="Delete" onclick="DeleteTag()">Delete</button>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <select class="w-100" name="TagValues" id="TagList" multiple>
+                            @*<option></option>*@
+                        </select>
+                    </div>
+
+                </div>
+
+
+
+
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+    <script src="~/js/CustomTags.js"></script>
+
+
+    <script>
+        let fileInput = document.getElementById("Image");
+        fileInput.onchange = evt => {
+            const [file] = fileInput.files
+            if (file) {
+                document.getElementById("imgPreview").src = URL.createObjectURL(file);
+            }
+        }
+    </script>
+
+
+}

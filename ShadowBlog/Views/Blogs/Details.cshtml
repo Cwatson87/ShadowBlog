@@ -1,0 +1,68 @@
+﻿@model ShadowBlog.Models.Blog
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+
+
+<section class="breadcrumb breadcrumb_bg align-items-center">
+    <div class="container">
+        <div class="row align-items-center justify-content-between">
+            <div class="col-sm-6">
+                <div class="breadcrumb_tittle text-left">
+                    <h2>Category Page</h2>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="breadcrumb_content text-right">
+                    <p>Home<span>/</span>Category Page</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<h1>Details</h1>
+
+<div>
+    <h4>Blog</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ImageData)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ImageData)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ContentType)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ContentType)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

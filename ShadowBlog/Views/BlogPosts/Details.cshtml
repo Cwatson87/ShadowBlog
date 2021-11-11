@@ -1,0 +1,217 @@
+﻿@using ShadowBlog.Enums
+@using ShadowBlog.Models
+@using ShadowBlog.Services.Interfaces
+@using Microsoft.AspNetCore.Identity
+
+@inject IImageService _imageService
+@inject UserManager<BlogUser> _userManager
+
+@model BlogPost
+
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('/img/post-bg.jpg')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="post-heading">
+                    <h1>@Model.Title</h1>
+                    <h2 class="subheading">@Model.Abstract</h2>
+                    <span class="meta">
+                        Created by Cameron Watson on @Model.Created.ToString("MMM dd, yyyy")
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content-->
+<article class="mb-4">
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                @Html.Raw(Model.Content)
+            </div>
+        </div>
+    </div>
+</article>
+<article>
+
+    <hr />
+    <h3 class="text-center fw-bold">Tags</h3>
+    <div class="col text-center">
+        @foreach(var tag in Model.Tags)
+        {
+            <a asp-action="TagIndex" asp-route-tag="@tag.Text.ToLower()" class="btn btn-sm btn-warning btn-outline-dark">#@tag.Text</a>
+        }
+
+    </div>
+</article>
+
+<hr />
+
+
+
+<hr />
+@*I want to either allow the user to leave a comment or prompt
+    them to login if they want to leave a comment*@
+
+@if (User.Identity.IsAuthenticated)
+{
+    //If they are logged in I can show them the create comment form
+    <div class="row">
+        <h2>Add A Comment</h2>
+        <div class="col-6">
+            <form asp-controller="Comments" asp-action="Create">
+                <input type="hidden" name="BlogPostId" value="@Model.Id" />
+
+                <div class="form-group">
+                    <textarea name="CommentBody" class="form-control" rows="5"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-dark btn-lg w-100" type="submit">Submit</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+}
+else
+{
+    //If the user is not logged in I will prompt them to login in order to see the create comment form
+    <div class="row">
+        <div class="col text-center">
+            <a class="btn btn-lg btn-dark w-75" returnUrl="" asp-area="Identity" asp-page="/Account/Login">Login to add a comment!</a>
+        </div>
+    </div>
+}
+
+<hr />
+
+<div class="row">
+    <h2>Comments</h2>
+
+    @foreach (var comment in Model.Comments.OrderByDescending(c => c.Created))
+    {
+        <div class="offset-1 col-10">
+
+            <div class="media mb-2">
+                @if (comment.BlogUser.ImageData is not null)
+                {
+                    <img src="@_imageService.DecodeImage(comment.BlogUser.ImageData, comment.BlogUser.ImageType)" class="mr-3 img-fluid" alt="...">
+                }
+                else
+                {
+                    <img src="~/img/DefaultNewUser.png" class="mr-3 img-fluid" alt="...">
+                }
+
+                <div class="media-body">
+
+                    @*You can either surround each piece of data individually with this type of
+                         logic as I have started doing here
+                               OR
+                        You can construct the entire comment display based on the state of the comment*@
+
+                    @if (comment.Moderated is not null)
+                    {
+                        <h5 class="mt-0">Moderated by @comment.Moderator.FullName on @comment.Moderated?.ToString("MMM dd, yyyy")</h5>
+                        <h6 class="mt-0"><i>Moderated reason: @comment.ModerationType</i></h6>
+                        <p>@comment.ModeratedBody</p>
+                    }
+                    else if (comment.Updated is not null)
+                    {
+                        <h5 class="mt-0">Updated by @comment.BlogUser.FullName on @comment.Updated?.ToString("MMM dd, yyyy")</h5>
+                        <p>@comment.CommentBody</p>
+                        <button class="btn btn-dark px-3 btnEdit" data-bs-toggle="modal" data-UserCommentId="@comment.Id" data-bs-target="#EditModal">Edit</button>
+                    }
+                    else
+                    {
+                        <h5 class="mt-0">Created by @comment.BlogUser.FullName on @comment.Created.ToString("MMM dd, yyyy")</h5>
+                        <p>@comment.CommentBody</p>
+                        <button class="btn btn-dark px-3 btnEdit" data-bs-toggle="modal" data-UserCommentId="@comment.Id" data-bs-target="#EditModal">Edit</button>
+                    }
+
+                    @if (User.IsInRole("Moderator"))
+                    {
+                        <button class="btn btn-danger px-3 btnModerate" data-bs-toggle="modal" data-UserCommentId="@comment.Id" data-bs-target="#ModerateModal">Moderate</button>
+                    }
+
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+@*Modals go here*@
+
+<div class="modal fade" id="EditModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Editing Comment...</h5>
+            </div>
+            <div class="modal-body">
+                <form asp-controller="Comments" asp-action="Edit">
+                    <input type="hidden" id="ModalCommentId" name="CommentId" />
+                    <textarea id="ModalCommentBody" name="Body" rows="5" class="w-100"></textarea>
+                    <button class="btn btn-dark w-100" type="submit">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="ModerateModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Moderating Comment...</h5>
+            </div>
+            <div class="modal-body">
+                <form asp-controller="Comments" asp-action="Moderate">
+                    <input type="hidden" id="ModerateModalCommentId" name="CommentId" />
+                    <select name="ModerationType" asp-items="@Html.GetEnumSelectList<ModType>()"></select>
+                    <textarea id="ModalModeratedBody" name="ModeratedBody" rows="5" class="w-100"></textarea>
+                    <button class="btn btn-danger w-100" type="submit">Submit</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        document.querySelectorAll("button.btnEdit").forEach(btn => {
+            btn.addEventListener("click", function () {
+                //Transfer the value of the button's data-UserCommentId to the Modals hidden input
+                document.getElementById("ModalCommentId").value = this.getAttribute('data-UserCommentId');
+                //I need to use JS to get the comment closest to the button i just clicked
+                let closestComment = this.closest(".media-body").querySelector("p").textContent;
+                document.getElementById("ModalCommentBody").textContent = closestComment;
+            });
+        });
+        document.querySelectorAll("button.btnModerate").forEach(btn => {
+            btn.addEventListener("click", function () {
+                document.getElementById("ModerateModalCommentId").value = this.getAttribute('data-UserCommentId');
+                let closestComment = this.closest(".media-body").querySelector("p").textContent;
+                document.getElementById("ModalModeratedBody").textContent = closestComment;
+            });
+        });
+    </script>
+}
