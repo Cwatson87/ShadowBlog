@@ -95,7 +95,7 @@ namespace ShadowBlog
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ShadowBlogAPI");
-                c.RoutePrefix = "";
+               // c.RoutePrefix = "";
             });
 
             app.UseRouting();
@@ -109,7 +109,7 @@ namespace ShadowBlog
                 //Route definitions need to go from most specific to most generalized
                 endpoints.MapControllerRoute(
                     name: "slugRoute",
-                    pattern: "CameronsBlog/PostDetails/{slug}",
+                    pattern: "CamsBlog/PostDetails/{slug}",
                     defaults: new { controller = "BlogPosts", action = "Details" }); 
 
                 endpoints.MapControllerRoute(
