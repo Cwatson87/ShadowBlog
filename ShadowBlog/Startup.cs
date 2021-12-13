@@ -10,6 +10,10 @@ using ShadowBlog.Services;
 using ShadowBlog.Data;
 using ShadowBlog.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.OpenApi.Models;
+using System;
+using System.Reflection;
+using System.IO;
 
 namespace ShadowBlog
 {
@@ -46,6 +50,28 @@ namespace ShadowBlog
             services.AddScoped<ISlugService, BasicSlugService>();
             services.AddScoped<SearchService>();
             services.AddScoped<IEmailSender, BasicEmailService>();
+
+            //Adding Swagger as a service
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "BlogApi",
+                    Description = "This is an open API with no security",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Cameron Watson",
+                        Email = "cwatsdev@gmail.com",
+                        Url = new Uri("https://camsblog.herokuapp.com/")
+                    }              
+                });
+
+                //Construct the XML comment path
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -64,6 +90,13 @@ namespace ShadowBlog
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ShadowBlogAPI");
+                c.RoutePrefix = "";
+            });
 
             app.UseRouting();
 

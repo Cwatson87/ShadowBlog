@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ShadowBlog</name>
+    </assembly>
+    <members>
+        <member name="M:ShadowBlog.Controllers.APIs.BlogSvcController.GetTopXPosts(System.Int32)">
+            <summary>
+            Returns the most recent X number of BlogPosts
+            </summary>
+            <remarks> Cameron 12/13/2021.</remarks>
+            <param name="num">The number of BlogPosts you want </param>
+            <returns>List of type BlogPost</returns>
+        </member>
+    </members>
+</doc>
